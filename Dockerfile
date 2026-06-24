@@ -30,5 +30,6 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader --ignore-pl
 # 7. Atur izin folder agar Laravel bisa nulis log dan cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-EXPOSE 9000
-CMD ["php-fpm"]
+EXPOSE 8080
+
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
