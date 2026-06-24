@@ -9,7 +9,7 @@ class MsKaryawan extends Authenticatable
 {
     use HasFactory;
 
-    protected $table = 'prod_msKaryawan';
+    protected $table = 'prod_mskaryawan';
 
     // LOGIN pakai NRP
     protected $primaryKey = 'NRPKaryawan';
