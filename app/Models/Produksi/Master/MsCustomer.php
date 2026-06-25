@@ -9,7 +9,7 @@ class MsCustomer extends Model
 {
     use HasFactory;
 
-    protected $table = 'prod_msCustomer';
+    protected $table = 'prod_mscustomer';
     protected $primaryKey = 'IdCustomer';
     protected $keyType = 'string';
     public $incrementing = false;

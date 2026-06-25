@@ -12,7 +12,7 @@ class MsItemProduction extends Model
 {
     use HasFactory;
 
-    protected $table = 'prod_msItemProduction'; // sesuai validasi kamu
+    protected $table = 'prod_msitemproduction'; // sesuai validasi kamu
     protected $primaryKey = 'IdItemProduksi';
     protected $keyType = 'string';
     public $incrementing = false; // karena pakai id manual

@@ -10,7 +10,7 @@ class MsProductionLine extends Model
 {
     use HasFactory;
 
-    protected $table = 'prod_msProductionLine';
+    protected $table = 'prod_msproductionline';
     protected $primaryKey = 'IdProductionLine';
     protected $keyType = 'string';
     public $incrementing = false;
