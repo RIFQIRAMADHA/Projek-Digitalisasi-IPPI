@@ -31,8 +31,8 @@ class LineController extends Controller
                 'required', 
                 'string', 
                 'max:255',
-                // Unik berdasarkan kombinasi Shift di tabel prod_msProductionLine
-                Rule::unique('prod_msProductionLine')->where(function ($query) use ($request) {
+                // Unik berdasarkan kombinasi Shift di tabel 
+                Rule::unique('prod_msproductionline')->where(function ($query) use ($request) {
                     return $query->where('NamaProductionLine', $request->NamaProductionLine)
                                  ->where('Shift', $request->Shift);
                 }),
@@ -81,7 +81,7 @@ class LineController extends Controller
                 'required', 
                 'string', 
                 'max:255',
-                Rule::unique('prod_msProductionLine')->where(function ($query) use ($request) {
+                Rule::unique('prod_msproductionline')->where(function ($query) use ($request) {
                     return $query->where('NamaProductionLine', $request->NamaProductionLine)
                                  ->where('Shift', $request->Shift);
                 })->ignore($id, 'IdProductionLine'),

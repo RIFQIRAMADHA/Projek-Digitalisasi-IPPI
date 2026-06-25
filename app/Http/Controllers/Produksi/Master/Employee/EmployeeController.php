@@ -51,7 +51,7 @@ class EmployeeController extends Controller
             // POIN 6: 'unique' dihapus dari NamaKaryawan
             'NamaKaryawan' => ['required', 'regex:/^[a-zA-Z\s]+$/'],
             // POIN 8: NRP dibatasi max_digits:6
-            'NRPKaryawan'  => ['required', 'numeric', 'max_digits:6', 'unique:prod_msKaryawan,NRPKaryawan'],
+            'NRPKaryawan'  => ['required', 'numeric', 'max_digits:6', 'unique:prod_mskaryawan,NRPKaryawan'],
             // POIN 7: Password dibatasi max:12
             'PasswordKaryawan' => 'required|min:4|max:12',
             'Jabatan'          => ['required', Rule::in($validJabatan)],
@@ -118,7 +118,7 @@ class EmployeeController extends Controller
                 'required', 
                 'numeric',
                 'max_digits:6', 
-                Rule::unique('prod_msKaryawan', 'NRPKaryawan')->ignore($employee->IdKaryawan, 'IdKaryawan')
+                Rule::unique('prod_mskaryawan', 'NRPKaryawan')->ignore($employee->IdKaryawan, 'IdKaryawan')
             ],
             // POIN 7: Validasi password max:12 saat update jika diisi
             'PasswordKaryawan' => 'nullable|min:4|max:12',

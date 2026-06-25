@@ -30,12 +30,12 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'NamaCustomer'    => 'required|string|max:255|unique:prod_msCustomer,NamaCustomer',
+            'NamaCustomer'    => 'required|string|max:255|unique:prod_mscustomer,NamaCustomer',
             'NamaCustomerPIC' => 'nullable|regex:/^[a-zA-Z\s]+$/',
             'AlamatCustomer'  => 'nullable|string|max:255',
-            'NoTelpCustomer'  => 'nullable|digits_between:1,13|unique:prod_msCustomer,NoTelpCustomer',
-            'EmailCustomer'   => 'nullable|email|unique:prod_msCustomer,EmailCustomer',
-            'NPWPCustomer'    => 'nullable|digits_between:1,15|unique:prod_msCustomer,NPWPCustomer',
+            'NoTelpCustomer'  => 'nullable|digits_between:1,13|unique:prod_mscustomer,NoTelpCustomer',
+            'EmailCustomer'   => 'nullable|email|unique:prod_mscustomer,EmailCustomer',
+            'NPWPCustomer'    => 'nullable|digits_between:1,15|unique:prod_mscustomer,NPWPCustomer',
         ], [
             'NamaCustomer.required'    => 'Nama Customer wajib diisi.',
             'NamaCustomer.unique'      => 'Nama Customer ini sudah terdaftar.',
@@ -98,12 +98,12 @@ class CustomerController extends Controller
 
         // VALIDASI: Hanya Nama yang Required
         $request->validate([
-            'NamaCustomer'    => ['required', 'string', 'max:255', Rule::unique('prod_msCustomer', 'NamaCustomer')->ignore($id, 'IdCustomer')],
+            'NamaCustomer'    => ['required', 'string', 'max:255', Rule::unique('prod_mscustomer', 'NamaCustomer')->ignore($id, 'IdCustomer')],
             'NamaCustomerPIC' => 'nullable|regex:/^[a-zA-Z\s]+$/',
             'AlamatCustomer'  => 'nullable|string|max:255',
-            'NoTelpCustomer'  => ['nullable', 'digits_between:1,13', Rule::unique('prod_msCustomer', 'NoTelpCustomer')->ignore($id, 'IdCustomer')],
-            'EmailCustomer'   => ['nullable', 'email', Rule::unique('prod_msCustomer', 'EmailCustomer')->ignore($id, 'IdCustomer')],
-            'NPWPCustomer'    => ['nullable', 'digits_between:1,15', Rule::unique('prod_msCustomer', 'NPWPCustomer')->ignore($id, 'IdCustomer')],
+            'NoTelpCustomer'  => ['nullable', 'digits_between:1,13', Rule::unique('prod_mscustomer', 'NoTelpCustomer')->ignore($id, 'IdCustomer')],
+            'EmailCustomer'   => ['nullable', 'email', Rule::unique('prod_mscustomer', 'EmailCustomer')->ignore($id, 'IdCustomer')],
+            'NPWPCustomer'    => ['nullable', 'digits_between:1,15', Rule::unique('prod_mscustomer', 'NPWPCustomer')->ignore($id, 'IdCustomer')],
         ], [
             'NamaCustomer.required' => 'Nama Customer wajib diisi.',
             'NamaCustomer.unique'   => 'Nama Customer sudah terdaftar.',
