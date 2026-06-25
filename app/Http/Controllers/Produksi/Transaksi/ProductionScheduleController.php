@@ -265,14 +265,25 @@ class ProductionScheduleController extends Controller
     public function show($id)
     {
         $id = trim($id);
+        
+        // 1. Ambil ID Plan yang bersih
         $inputHarian = TrsInputHarian::where('IdInputHarian', $id)->first();
         $idPlan = $inputHarian ? (explode('-', $inputHarian->IdInputHarian)[1] ?? $id) : str_replace('IH-', '', $id);
         
+        // 2. Ambil data dengan memastikan relasi terbaru
         $schedule = TrsPlanScheduleProduction::with(['productionLine', 'details.item', 'pic'])
             ->where('IdPlanSchedule', $idPlan)
             ->first();
 
-        if (!$schedule) return redirect()->route('productionschedule.index')->with('error', 'Terjadi Kesalahan');
+        if (!$schedule) {
+            return redirect()->route('productionschedule.index')->with('error', 'Data tidak ditemukan');
+        }
+
+        // 🔥 TAMBAHAN: Pastikan kita ngambil data dari tabel yang fresh
+        // Kalau lu ngerasa "Revisi" nya gak muncul, cek apakah status di database memang sudah berubah
+        // Lu bisa melakukan refresh manual jika perlu:
+        $schedule->refresh(); 
+
         return view('Produksi.productionschedule.show', compact('schedule'));
     }
 

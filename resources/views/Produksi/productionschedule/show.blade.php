@@ -33,9 +33,9 @@
 
     <div class="detail-item">
         <label>Revisi</label>
-        @if($schedule->status)
+        @if($schedule->Status)
             <span class="badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 12px;">
-                <i class="fas fa-history"></i> {{ $schedule->status }}
+                <i class="fas fa-history"></i> {{ $schedule->Status }}
             </span>
         @else
             <span class="badge badge-success" style="background: #e2fbe8; color: #1e7e34; border: 1px solid #c3e6cb; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 12px;">
