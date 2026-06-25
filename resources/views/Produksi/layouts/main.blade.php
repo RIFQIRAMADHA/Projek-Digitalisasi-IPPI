@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/components.css') }}">
+    {{-- Core CSS A-Track --}}
+    <link rel="stylesheet" href="{{ asset('css/Produksi/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/Produksi/components.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/Produksi/layout.css') }}"> 
     
+    {{-- 1. SELECT2 CSS LOKAL (Anti-Block) --}}
+    <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'A-Track')</title>
