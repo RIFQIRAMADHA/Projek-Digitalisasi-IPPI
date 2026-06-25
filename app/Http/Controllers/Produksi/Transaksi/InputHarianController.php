@@ -180,9 +180,9 @@ class InputHarianController extends Controller
     {
         $request->validate([
             // Wajib diisi dan ID-nya HARUS beneran ada di tabel master yang bersangkutan
-            'IdProductionLine' => 'required|exists:prod_msProductionLine,IdProductionLine',
+            'IdProductionLine' => 'required|exists:prod_msproductionline,IdProductionLine',
             // 🔥 Ganti 'id' menjadi 'IdItemProduksi' (sesuaikan dengan nama kolom di database lu)
-            'IdItemProduksi'   => 'required|exists:prod_msItemProduction,IdItemProduksi', 
+            'IdItemProduksi'   => 'required|exists:prod_msitemproduction,IdItemProduksi', 
             'TanggalProduksi'  => 'nullable|date',
         ]);
 
@@ -482,10 +482,10 @@ class InputHarianController extends Controller
                 $newRejectRate = ($totalAktual > 0) ? (((float)$input->RejectA + (float)$input->RejectB) / $totalAktual) * 100 : 0;
 
                 if ($action === 'stop' && $autoOper == 1) {
-                    $line = DB::table('prod_msProductionLine')->where('IdProductionLine', $input->IdProductionLine)->first();
+                    $line = DB::table('prod_msproductionline')->where('IdProductionLine', $input->IdProductionLine)->first();
                     preg_match('!\d+!', $line->Shift, $matches);
                     $nextShiftNum = (isset($matches[0]) && $matches[0] == 1) ? 2 : 1;
-                    $nextLine = DB::table('prod_msProductionLine')
+                    $nextLine = DB::table('prod_msproductionline')
                         ->where('NamaProductionLine', 'LIKE', '%' . trim($line->NamaProductionLine) . '%')
                         ->where('Shift', 'LIKE', '%Shift ' . $nextShiftNum . '%')
                         ->first();
@@ -579,11 +579,11 @@ class InputHarianController extends Controller
             $idLine = $request->id_line;
             $tgl = $request->tanggal;
 
-            $line = DB::table('prod_msProductionLine')->where('IdProductionLine', $idLine)->first();
+            $line = DB::table('prod_msproductionline')->where('IdProductionLine', $idLine)->first();
             preg_match('!\d+!', $line->Shift, $matches);
             $nextShiftNum = (isset($matches[0]) && $matches[0] == 1) ? 2 : 1;
             
-            $nextLine = DB::table('prod_msProductionLine')
+            $nextLine = DB::table('prod_msproductionline')
                 ->where('NamaProductionLine', 'LIKE', '%' . trim($line->NamaProductionLine) . '%')
                 ->where('Shift', 'LIKE', '%Shift ' . $nextShiftNum . '%')
                 ->first();
@@ -672,11 +672,11 @@ class InputHarianController extends Controller
             $totalProgress = $progA + $progB;
             $totalPlan = (float)$input->PlanQtyA + (float)$input->PlanQtyB;
 
-            $line = DB::table('prod_msProductionLine')->where('IdProductionLine', $input->IdProductionLine)->first();
+            $line = DB::table('prod_msproductionline')->where('IdProductionLine', $input->IdProductionLine)->first();
             preg_match('!\d+!', $line->Shift, $matches);
             $nextShiftNum = (isset($matches[0]) && $matches[0] == 1) ? 2 : 1;
             
-            $nextLine = DB::table('prod_msProductionLine')
+            $nextLine = DB::table('prod_msproductionline')
                 ->where('NamaProductionLine', 'LIKE', '%' . trim($line->NamaProductionLine) . '%')
                 ->where('Shift', 'LIKE', '%Shift ' . $nextShiftNum . '%')->first();
 

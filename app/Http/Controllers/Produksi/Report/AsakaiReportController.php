@@ -118,64 +118,64 @@ class AsakaiReportController extends Controller
         if ($listIdHarianToday->isNotEmpty()) {
             // --- 1. QUERY TOTAL PRODUKSI MTD (Hanya Kolom A) ---
             $totalProduksiMTD = TrsInputHarian::whereIn('prod_trsinputharian.IdInputHarian', $listIdHarianAccum)
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->selectRaw("
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineE,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineF,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineK
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineE,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineF,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineK
                 ")->first();
 
             // Query REPAIR
             $repairData = DetailRepair::whereIn('prod_detailrepair.IdInputHarian', $listIdHarianAccum)
                 ->join('prod_trsinputharian', 'prod_detailrepair.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->selectRaw("
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineE,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineE,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineF,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineF,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineK,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineK,
-                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msProductionLine.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailrepair.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineE,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineE,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineF,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineF,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineK,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineK,
+                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msproductionline.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailrepair.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
                 ")->first();
 
             // Query REJECT
             $rejectData = \App\Models\Produksi\Detail\DetailReject::whereIn('prod_detailreject.IdInputHarian', $listIdHarianAccum)
                 ->join('prod_trsinputharian', 'prod_detailreject.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->selectRaw("
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineE,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineE,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineF,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineF,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineK,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineK,
-                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msProductionLine.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailreject.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineE,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineE,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineF,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineF,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineK,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineK,
+                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msproductionline.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailreject.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
                 ")->first();
 
             // --- 4. Query PRODUCTIVITY ---
             $productivityData = TrsInputHarian::whereIn('prod_trsinputharian.IdInputHarian', $listIdHarianToday)
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->selectRaw("
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S2
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S2
                 ")->first();
 
             // --- 5. QUERY DOWNTIME RAW ---
             $rawDowntime = \App\Models\Produksi\Detail\DetailDowntime::join('prod_trsinputharian', 'prod_detaildowntime.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->whereBetween('prod_trsinputharian.TanggalProduksi', [$startOfMonth, $tanggalPilihan])
-                ->select('prod_detaildowntime.*', 'prod_msProductionLine.NamaProductionLine', 'prod_msProductionLine.Shift', 'prod_trsinputharian.TanggalProduksi')
+                ->select('prod_detaildowntime.*', 'prod_msproductionline.NamaProductionLine', 'prod_msproductionline.Shift', 'prod_trsinputharian.TanggalProduksi')
                 ->get();
 
         } else {
@@ -229,20 +229,20 @@ class AsakaiReportController extends Controller
 
         // --- 7. QUERY GSPH AUTOMATION ---
         $gsphData = TrsInputHarian::whereIn('prod_trsinputharian.IdInputHarian', $listIdHarianToday)
-            ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+            ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
             ->selectRaw("
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHE_S1,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHE_S1,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHF_S1,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHF_S1,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHK_S1,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHK_S1,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHE_S2,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHF_S2,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHK_S2,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHE_S2,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHF_S2,
-                SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHK_S2
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHE_S1,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHE_S1,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHF_S1,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msProduprod_msproductionlinectionLine.Shift LIKE '%1%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHF_S1,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHK_S1,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHK_S1,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHE_S2,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHF_S2,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanGSPH, 0) ELSE 0 END) as PlanGSPHK_S2,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHE_S2,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHF_S2,
+                SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(AktualGSPH, 0) ELSE 0 END) as AktualGSPHK_S2
             ")->first();
 
 
@@ -557,28 +557,28 @@ class AsakaiReportController extends Controller
         } else {
             $repairData = DetailRepair::whereIn('prod_detailrepair.IdInputHarian', $listIdHarianAccum)
                 ->join('prod_trsinputharian', 'prod_detailrepair.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->selectRaw("
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineE,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineE,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineF,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineF,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineK,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineK,
-                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msProductionLine.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailrepair.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineE,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineE,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineF,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineF,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineK,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineK,
+                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msproductionline.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailrepair.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
                 ")->first() ?? $defaultData;
 
             $rejectData = DetailReject::whereIn('prod_detailreject.IdInputHarian', $listIdHarianAccum)
                 ->join('prod_trsinputharian', 'prod_detailreject.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->selectRaw("
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineE,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineE,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineF,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineF,
-                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineK,
-                    SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineK,
-                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msProductionLine.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailreject.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineE,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineE,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineF,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineF,
+                    SUM(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' AND prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineK,
+                    SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineK,
+                    GROUP_CONCAT(CASE WHEN DATE(prod_trsinputharian.TanggalProduksi) = '$tanggalPilihan' THEN CONCAT(prod_msproductionline.NamaProductionLine, ': ', NamaKerusakan, ' (', CAST(prod_detailreject.Qty AS UNSIGNED), ' PCS)') END SEPARATOR '\n') as listIssue
                 ")->first() ?? $defaultData;
         }
 
@@ -594,20 +594,20 @@ class AsakaiReportController extends Controller
             ];
         } else {
             $productivityData = TrsInputHarian::whereIn('prod_trsinputharian.IdInputHarian', $listIdHarianToday)
-                ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+                ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
                 ->selectRaw("
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S1,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE E%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE F%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S2,
-                    SUM(CASE WHEN UPPER(prod_msProductionLine.NamaProductionLine) LIKE '%LINE K%' AND prod_msProductionLine.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S2
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%1%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S1,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planE_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE E%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actE_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planF_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE F%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actF_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(PlanQtyA, 0) ELSE 0 END) as planK_S2,
+                    SUM(CASE WHEN UPPER(prod_msproductionline.NamaProductionLine) LIKE '%LINE K%' AND prod_msproductionline.Shift LIKE '%2%' THEN IFNULL(GoodA, 0) ELSE 0 END) as actK_S2
                 ")->first();
         }
 
@@ -650,11 +650,11 @@ class AsakaiReportController extends Controller
 
         // --- TOTAL PRODUKSI MTD ---
         $totalProduksiMTD = TrsInputHarian::whereIn('prod_trsinputharian.IdInputHarian', $listIdHarianAccum)
-            ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+            ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
             ->selectRaw("
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineE,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineF,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineK
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineE,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineF,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineK
             ")->first();
 
         return view('Produksi.report.asakai.edit', compact(
@@ -911,43 +911,43 @@ class AsakaiReportController extends Controller
 
         // --- 2. QUERY TOTAL PRODUKSI MTD (Hanya Kolom A) ---
         $totalProduksiMTD = TrsInputHarian::whereIn('prod_trsinputharian.IdInputHarian', $listIdHarianAccum)
-            ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+            ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
             ->selectRaw("
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineE,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineF,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineK
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineE,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineF,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN (IFNULL(GoodA,0) + IFNULL(RepairA,0) + IFNULL(RejectA,0)) ELSE 0 END) as prodLineK
             ")->first();
 
         // --- 3. QUERY REPAIR & REJECT DATA (Untuk Quality) ---
         $repairData = DetailRepair::whereIn('prod_detailrepair.IdInputHarian', $listIdHarianAccum)
             ->join('prod_trsinputharian', 'prod_detailrepair.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-            ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+            ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
             ->selectRaw("
-                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineE,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineE,
-                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineF,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineF,
-                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineK,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineK
+                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineE,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineE,
+                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineF,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineF,
+                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as totalLineK,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailrepair.Qty ELSE 0 END) as accumLineK
             ")->first();
 
         $rejectData = \App\Models\Produksi\Detail\DetailReject::whereIn('prod_detailreject.IdInputHarian', $listIdHarianAccum)
             ->join('prod_trsinputharian', 'prod_detailreject.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-            ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+            ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
             ->selectRaw("
-                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineE,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineE,
-                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineF,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineF,
-                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineK,
-                SUM(CASE WHEN prod_msProductionLine.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineK
+                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineE,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE E%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineE,
+                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineF,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE F%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineF,
+                SUM(CASE WHEN prod_trsinputharian.TanggalProduksi = '$tanggal' AND prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as totalLineK,
+                SUM(CASE WHEN prod_msproductionline.NamaProductionLine LIKE '%LINE K%' THEN prod_detailreject.Qty ELSE 0 END) as accumLineK
             ")->first();
 
         // --- 4. QUERY DOWNTIME RAW ---
         $rawDowntime = \App\Models\Produksi\Detail\DetailDowntime::join('prod_trsinputharian', 'prod_detaildowntime.IdInputHarian', '=', 'prod_trsinputharian.IdInputHarian')
-            ->join('prod_msProductionLine', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msProductionLine.IdProductionLine')
+            ->join('prod_msproductionline', 'prod_trsinputharian.IdProductionLine', '=', 'prod_msproductionline.IdProductionLine')
             ->whereBetween('prod_trsinputharian.TanggalProduksi', [$startOfMonth, $tanggal])
-            ->select('prod_detaildowntime.*', 'prod_msProductionLine.NamaProductionLine', 'prod_msProductionLine.Shift', 'prod_trsinputharian.TanggalProduksi')
+            ->select('prod_detaildowntime.*', 'prod_msproductionline.NamaProductionLine', 'prod_msproductionline.Shift', 'prod_trsinputharian.TanggalProduksi')
             ->get();
 
         // --- 5. MAPPING DOWNTIME (Logic yang udah kita benerin) ---

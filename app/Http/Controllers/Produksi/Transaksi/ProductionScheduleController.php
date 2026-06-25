@@ -53,7 +53,7 @@ class ProductionScheduleController extends Controller
 
             if ($cleanIdPlan) {
                 $headerAsli = DB::table('prod_trsplanscheduleproduction as ts')
-                                ->leftJoin('prod_msKaryawan as mk', 'ts.IdKaryawan', '=', 'mk.IdKaryawan')
+                                ->leftJoin('prod_mskaryawan as mk', 'ts.IdKaryawan', '=', 'mk.IdKaryawan')
                                 ->select('ts.*', 'mk.NamaKaryawan')
                                 ->where('ts.IdPlanSchedule', $cleanIdPlan)
                                 ->first();
@@ -62,7 +62,7 @@ class ProductionScheduleController extends Controller
                     $item->pic_display = $headerAsli->NamaKaryawan ?? 'PIC Tidak Ditemukan';
                     $item->status_label = $headerAsli->Status;
 
-                    $masterLine = DB::table('prod_msProductionLine')
+                    $masterLine = DB::table('prod_msproductionline')
                                     ->where('IdProductionLine', $headerAsli->IdProductionLine)
                                     ->first();
 
