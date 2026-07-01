@@ -202,7 +202,11 @@ class ImportHelper {
     public function executeInsert($row, $idPlan, $lineId, $tgl, $index, $searchId, $type, $creator, $passedGSPH = 0) {
         try {
             $item = DB::table('prod_msItemProduction')->where('JobNumber', trim($searchId))->first();
-            if (!$item) return;
+            
+            // 🔥 UBAH INI BIAR KETAHUAN KALAU ITEM GAK KETEMU
+            if (!$item) {
+                throw new \Exception("Job Number [ " . trim($searchId) . " ] tidak ditemukan di database Master Item!");
+            }
 
             // ✅ SEMUA VARIABEL ANGKA DIBUNGKUS cleanNumber()
             $tptValue = ($type === 'EF') ? $this->cleanNumber($row[20] ?? 0) : $this->cleanNumber($row[21] ?? 0);
