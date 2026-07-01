@@ -212,12 +212,12 @@
 
                 <td class="text-center">
                     <div class="flex-cell-container">
-                        {{-- Pakai number_format(..., 0) biar koma nol-nol nya ilang --}}
-                        <input type="text" class="input-table-custom" 
-                            value="{{ number_format($row->plan_qty_a, 2) }}" disabled style="width: 45px !important;">
+                        {{-- Class plan-a ditambahkan dan number_format dihapus biar JS bisa baca angkanya --}}
+                        <input type="text" class="input-table-custom plan-a" 
+                            value="{{ $row->plan_qty_a }}" disabled style="width: 45px !important;">
                         
-                        <input type="text" class="input-table-custom" 
-                            value="{{ number_format($row->plan_qty_b, 2) }}" disabled style="width: 45px !important;">
+                        <input type="text" class="input-table-custom plan-b" 
+                            value="{{ $row->plan_qty_b }}" disabled style="width: 45px !important;">
                     </div>
                 </td>
 
@@ -473,15 +473,16 @@
             // --- 2. AMBIL PLAN TOTAL ---
             // Plan biasanya ada di kolom index 2 (input disabled pertama dan kedua)
             const planInputs = tr.querySelectorAll('input[disabled]');
-            const planA = parseFloat(planInputs[0]?.value || 0);
-            const planB = parseFloat(planInputs[1]?.value || 0);
-            const totalPlan = planA + planB;
+            // --- 2. AMBIL PLAN A SAJA SEBAGAI TARGET ---
+            // Mengambil nilai murni dari input dengan class plan-a
+            const planA = parseFloat(tr.querySelector('.plan-a')?.value || 0);
 
-            if (Math.abs(totalHasilA - totalPlan) > 0.1) {
+            // Validasi: Apakah Hasil = Plan A?
+            if (Math.abs(totalHasilA - planA) > 0.1) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Total Quantity Tidak Sama!',
-                    html: `Plan: <b>${totalPlan}</b><br>Total: <b>${totalHasilA}</b><br><small>(Good: ${goodA} + Repair: ${repairA} + Reject: ${rejectA})</small>`,
+                    html: `Plan: <b>${planA}</b><br>Total: <b>${totalHasilA}</b><br><small>(Good: ${goodA} + Repair: ${repairA} + Reject: ${rejectA})</small>`,
                     confirmButtonColor: '#e11d2e'
                 });
                 return;

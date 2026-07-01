@@ -163,6 +163,23 @@ class LineKImport implements ToCollection, WithColumnLimit, WithChunkReading
 
 class ImportHelper {
     
+    // 🔥 FUNGSI BARU UNTUK MEMBERSIHKAN ANGKA DARI KOMA & TITIK RIBUAN 🔥
+    public function cleanNumber($val) {
+        if (empty($val) || $val === '-' || $val === ' ') return 0;
+        
+        $val = trim($val);
+        
+        // Hapus titik ribuan jika tidak ada koma (misal 1.080 jadi 1080)
+        if (strpos($val, '.') !== false && strpos($val, ',') === false) {
+            $val = str_replace('.', '', $val);
+        }
+        
+        // Ubah koma desimal Indonesia menjadi titik desimal sistem
+        $val = str_replace(',', '.', $val);
+        
+        return is_numeric($val) ? (float) $val : 0;
+    }
+
     public function clearOldDataByLine($lineId, $tanggal) {
         $oldSchedules = DB::table('prod_trsplanscheduleproduction')
                         ->where('IdProductionLine', $lineId)
@@ -187,9 +204,10 @@ class ImportHelper {
             $item = DB::table('prod_msItemProduction')->where('JobNumber', trim($searchId))->first();
             if (!$item) return;
 
-            $tptValue = ($type === 'EF') ? (is_numeric($row[20]) ? $row[20] : 0) : (is_numeric($row[21]) ? $row[21] : 0);
-            $qtyA     = ($type === 'EF') ? (is_numeric($row[5]) ? $row[5] : 0)   : (is_numeric($row[7]) ? $row[7] : 0);
-            $ubpValue = ($type === 'EF') ? (is_numeric($row[18]) ? $row[18] : 0) : 0;
+            // ✅ SEMUA VARIABEL ANGKA DIBUNGKUS cleanNumber()
+            $tptValue = ($type === 'EF') ? $this->cleanNumber($row[20] ?? 0) : $this->cleanNumber($row[21] ?? 0);
+            $qtyA     = ($type === 'EF') ? $this->cleanNumber($row[5] ?? 0)  : $this->cleanNumber($row[7] ?? 0);
+            $ubpValue = ($type === 'EF') ? $this->cleanNumber($row[18] ?? 0) : 0;
 
             // Logic GSPH: EF pakai AH berantai, K pakai rumus
             $gsphValue = ($type === 'EF') ? $passedGSPH : (($tptValue > 0) ? ($qtyA / $tptValue * 60) : 0);
@@ -201,27 +219,27 @@ class ImportHelper {
                     'IdItemProduksi' => $item->IdItemProduksi,
                     'PartName'       => $row[4] ?? $item->NamaPart,
                     'PlanQtyA'       => $qtyA,
-                    'PlanQtyB'       => $row[6] ?? 0,
-                    'BqSht'          => $row[7] ?? 0,
-                    'JmlMaterial'    => $row[8] ?? 0,
-                    'JmlPallet'      => $row[10] ?? 0,
-                    'CT'             => $row[11] ?? 0,
-                    'PressTime'      => $row[12] ?? 0,
-                    'FirstQCheck'    => $row[13] ?? 0,
-                    'DiesChangeUchi' => $row[14] ?? 0,
-                    'DiesChangeSoto' => $row[15] ?? 0,
-                    'TotalMesin'     => $row[16] ?? 0,
-                    'Stroke'         => $row[17] ?? 0,
+                    'PlanQtyB'       => $this->cleanNumber($row[6] ?? 0),
+                    'BqSht'          => $this->cleanNumber($row[7] ?? 0),
+                    'JmlMaterial'    => $this->cleanNumber($row[8] ?? 0),
+                    'JmlPallet'      => $this->cleanNumber($row[10] ?? 0),
+                    'CT'             => $this->cleanNumber($row[11] ?? 0),
+                    'PressTime'      => $this->cleanNumber($row[12] ?? 0),
+                    'FirstQCheck'    => $this->cleanNumber($row[13] ?? 0),
+                    'DiesChangeUchi' => $this->cleanNumber($row[14] ?? 0),
+                    'DiesChangeSoto' => $this->cleanNumber($row[15] ?? 0),
+                    'TotalMesin'     => $this->cleanNumber($row[16] ?? 0),
+                    'Stroke'         => $this->cleanNumber($row[17] ?? 0),
                     'UBP'            => $ubpValue,
-                    'DTR'            => $row[19] ?? 0,
+                    'DTR'            => $this->cleanNumber($row[19] ?? 0),
                     'TPT'            => $tptValue,
                     'PlanStart'      => $this->formatTime($row[21]),
                     'PlanFinish'     => $this->formatTime($row[22]),
-                    'QtyMesin1'      => $row[23] ?? 0,
-                    'QtyMesin2'      => $row[24] ?? 0,
-                    'QtyMesin3'      => $row[25] ?? 0,
-                    'QtyMesin4'      => $row[26] ?? 0,
-                    'DieChangeHigh'  => $row[27] ?? 0,
+                    'QtyMesin1'      => $this->cleanNumber($row[23] ?? 0),
+                    'QtyMesin2'      => $this->cleanNumber($row[24] ?? 0),
+                    'QtyMesin3'      => $this->cleanNumber($row[25] ?? 0),
+                    'QtyMesin4'      => $this->cleanNumber($row[26] ?? 0),
+                    'DieChangeHigh'  => $this->cleanNumber($row[27] ?? 0),
                     'PoNumber'       => $row[28] ?? null,
                     'Note'           => $row[30] ?? null,
                     'PlanGSPH'       => $gsphValue,
@@ -235,26 +253,26 @@ class ImportHelper {
                     'IdItemProduksi' => $item->IdItemProduksi, 
                     'PartName'       => $item->NamaPart,
                     'PoNumber'       => $row[2] ?? null, 
-                    'JmlMaterial'    => $row[3] ?? 0, 
-                    'JmlPallet'      => $row[5] ?? 0,
+                    'JmlMaterial'    => $this->cleanNumber($row[3] ?? 0), 
+                    'JmlPallet'      => $this->cleanNumber($row[5] ?? 0),
                     'PlanQtyA'       => $qtyA, 
-                    'PlanQtyB'       => $row[8] ?? 0, 
-                    'Stroke'         => $row[9] ?? 0,
-                    'TotalMesin'     => $row[13] ?? 0, 
-                    'CT'             => $row[14] ?? 0, 
-                    'PressTime'      => $row[15] ?? 0,
-                    'FirstQCheck'    => $row[16] ?? 0, 
-                    'DiesChangeUchi' => $row[17] ?? 0, 
-                    'DTR'            => $row[18] ?? 0,
+                    'PlanQtyB'       => $this->cleanNumber($row[8] ?? 0), 
+                    'Stroke'         => $this->cleanNumber($row[9] ?? 0),
+                    'TotalMesin'     => $this->cleanNumber($row[13] ?? 0), 
+                    'CT'             => $this->cleanNumber($row[14] ?? 0), 
+                    'PressTime'      => $this->cleanNumber($row[15] ?? 0),
+                    'FirstQCheck'    => $this->cleanNumber($row[16] ?? 0), 
+                    'DiesChangeUchi' => $this->cleanNumber($row[17] ?? 0), 
+                    'DTR'            => $this->cleanNumber($row[18] ?? 0),
                     'TPT'            => $tptValue, 
                     'PlanStart'      => $this->formatTime($row[23]), 
                     'PlanFinish'     => $this->formatTime($row[24]),
                     'Note'           => $row[27] ?? null, 
-                    'QtyMesin1'      => $row[28] ?? 0, 
-                    'QtyMesin2'      => $row[29] ?? 0,
-                    'QtyMesin3'      => $row[30] ?? 0, 
-                    'QtyMesin4'      => $row[31] ?? 0, 
-                    'QtyMesin5'      => $row[32] ?? 0,
+                    'QtyMesin1'      => $this->cleanNumber($row[28] ?? 0), 
+                    'QtyMesin2'      => $this->cleanNumber($row[29] ?? 0),
+                    'QtyMesin3'      => $this->cleanNumber($row[30] ?? 0), 
+                    'QtyMesin4'      => $this->cleanNumber($row[31] ?? 0), 
+                    'QtyMesin5'      => $this->cleanNumber($row[32] ?? 0),
                     'PlanGSPH'       => $gsphValue, 
                     'PlanWorkTime'   => $workTimeValue,
                     'create_by'      => $creator, 
