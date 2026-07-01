@@ -295,13 +295,12 @@ class ImportHelper {
                 'created_at'       => now(),
             ]);
 
-        // 🔥 TANGKAP ERROR DI SINI BIAR BISA NGASIH TAU JOB NUMBER-NYA
         } catch (\Illuminate\Database\QueryException $e) {
-            // Error ini kepanggil kalau misal tipe data ngaco (Huruf masuk ke kolom angka)
-            throw new \Exception(" Cek Job Number [ " . trim($searchId) . " ]. Terdapat input huruf/teks pada kolom yang seharusnya diisi angka!");
+            // 🔥 KITA BONGKAR ISI ERROR SQL-NYA DI SINI
+            throw new \Exception("DB Error: " . $e->getMessage() . " | Job Number: " . trim($searchId));
         } catch (\Exception $e) {
-            // Error umum lainnya
-            throw new \Exception("Gagal pada Job Number [ " . trim($searchId) . " ]. Detail: " . $e->getMessage());
+            // 🔥 KITA BONGKAR DETAIL EXCEPTION-NYA
+            throw new \Exception("Error di Job Number [" . trim($searchId) . "]: " . $e->getMessage());
         }
     }
 
