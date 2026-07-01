@@ -201,7 +201,7 @@ class ImportHelper {
 
     public function executeInsert($row, $idPlan, $lineId, $tgl, $index, $searchId, $type, $creator, $passedGSPH = 0) {
         try {
-            $item = DB::table('prod_msItemProduction')->where('JobNumber', trim($searchId))->first();
+            $item = DB::table('prod_msitemproduction')->where('JobNumber', trim($searchId))->first();
             
             // 🔥 UBAH INI BIAR KETAHUAN KALAU ITEM GAK KETEMU
             if (!$item) {
