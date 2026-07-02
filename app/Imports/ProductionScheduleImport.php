@@ -165,19 +165,28 @@ class ImportHelper {
     
     // 🔥 FUNGSI BARU UNTUK MEMBERSIHKAN ANGKA DARI KOMA & TITIK RIBUAN 🔥
     public function cleanNumber($val) {
+        // 1. Kalau datanya kosong atau cuma strip
         if (empty($val) || $val === '-' || $val === ' ') return 0;
         
+        // 2. Kalau bawaan dari Excel udah murni angka (integer/float), langsung balikin!
+        // (Ini yang bikin error triliunan tadi, sekarang udah aman)
+        if (is_int($val) || is_float($val)) {
+            return (float) $val;
+        }
+
         $val = trim($val);
         
-        // Hapus titik ribuan jika tidak ada koma (misal 1.080 jadi 1080)
-        if (strpos($val, '.') !== false && strpos($val, ',') === false) {
-            $val = str_replace('.', '', $val);
+        // 3. Tangani kalau diketik manual pakai format Indonesia (contoh: "1.234,50")
+        if (strpos($val, ',') !== false) {
+            $val = str_replace('.', '', $val); // Hapus titik ribuan
+            $val = str_replace(',', '.', $val); // Ubah koma desimal jadi titik
         }
+
+        // 4. Ubah jadi tipe desimal PHP
+        $num = is_numeric($val) ? (float) $val : 0;
         
-        // Ubah koma desimal Indonesia menjadi titik desimal sistem
-        $val = str_replace(',', '.', $val);
-        
-        return is_numeric($val) ? (float) $val : 0;
+        // 5. Sabuk pengaman terakhir (kalau masih ada angka ngaco di atas sejuta, jadikan 0)
+        return ($num > 999999) ? 0 : $num;
     }
 
     public function clearOldDataByLine($lineId, $tanggal) {
@@ -187,12 +196,15 @@ class ImportHelper {
                         ->get();
 
         foreach ($oldSchedules as $old) {
-            $currentStatus = $old->status;
+            // 🔥 Ambil data pakai 'S' besar
+            $currentStatus = $old->Status ?? null;
+            
             $newStatus = empty($currentStatus) ? "Revisi 1" : "Revisi " . ((int)filter_var($currentStatus, FILTER_SANITIZE_NUMBER_INT) + 1);
 
             DB::table('prod_trsplanscheduleproduction')
                 ->where('IdPlanSchedule', $old->IdPlanSchedule)
-                ->update(['status' => $newStatus, 'updated_at' => now()]);
+                // 🔥 Update kolom juga wajib pakai 'S' besar
+                ->update(['Status' => $newStatus, 'updated_at' => now()]);
 
             DB::table('prod_detailplanscheduleproduksi')->where('IdPlanSchedule', $old->IdPlanSchedule)->delete();
             DB::table('prod_trsinputharian')->where('IdInputHarian', 'LIKE', 'IH-' . $old->IdPlanSchedule . '-%')->delete();
